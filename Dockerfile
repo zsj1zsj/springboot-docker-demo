@@ -11,23 +11,17 @@ COPY .mvn .mvn
 
 RUN ./mvnw dependency:go-offline
 
-# 复制项目源码
-COPY src ./src
+# Step 1: Use an official OpenJDK base image from Docker Hub
+FROM openjdk:17
 
-# 构建项目
-RUN ./mvnw clean package -DskipTests
-
-# 第二阶段：运行构建好的 jar 文件
-FROM eclipse-temurin:17-jdk-alpine
-
-# 设置工作目录
+# Step 2: Set the working directory inside the container
 WORKDIR /app
-echo "# springboot-docker-demo" >> README.md
-# 拷贝构建好的 jar 包（假设在 target 目录下）
-COPY --from=builder /app/target/*.jar app.jar
 
-# 暴露端口（修改为你的应用端口）
+# Step 3: Copy the Spring Boot JAR file into the container
+COPY target/SpringMVCDemo-1.0-SNAPSHOT.jar /app/SpringMVCDemo-1.0-SNAPSHOT.jar
+
+# Step 4: Expose the port your application runs on
 EXPOSE 8080
 
-# 启动 Spring Boot 应用
-ENTRYPOINT ["java", "-jar", "app.jar"]
+# Step 5: Define the command to run your Spring Boot application
+CMD ["java", "-jar", "/app/SpringMVCDemo-1.0-SNAPSHOT.jar"]
